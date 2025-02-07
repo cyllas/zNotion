@@ -4,7 +4,6 @@
 
 [![npm version](https://badge.fury.io/js/znotion.svg)](https://badge.fury.io/js/znotion)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
-[![Test Coverage](https://img.shields.io/codecov/c/github/cyllas/znotion)](https://codecov.io/gh/cyllas/znotion)
 [![Build Status](https://github.com/cyllas/znotion/workflows/CI/badge.svg)](https://github.com/cyllas/znotion/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
