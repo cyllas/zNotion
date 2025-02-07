@@ -2,6 +2,17 @@
 
 [🇧🇷 Português](README.pt-br.md) | [🇺🇸 English](README.md)
 
+[![npm version](https://badge.fury.io/js/znotion.svg)](https://badge.fury.io/js/znotion)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
+[![Test Coverage](https://img.shields.io/codecov/c/github/seu-usuario/znotion)](https://codecov.io/gh/seu-usuario/znotion)
+[![Build Status](https://github.com/seu-usuario/znotion/workflows/CI/badge.svg)](https://github.com/seu-usuario/znotion/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![Semantic Versioning](https://img.shields.io/badge/semver-2.0.0-brightgreen)](https://semver.org/)
+[![Code Style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+[![Dependencies Status](https://status.david-dm.org/gh/seu-usuario/znotion.svg)](https://david-dm.org/seu-usuario/znotion)
+
 A modern and typed TypeScript library for interacting with the Notion API, providing a simple and robust interface for manipulating pages, databases, and blocks.
 
 ## 📚 Documentation

@@ -2,6 +2,17 @@
 
 [🇧🇷 Português](https://github.com/seu-usuario/znotion/blob/main/README.pt-br.md) | [🇺🇸 English](https://github.com/seu-usuario/znotion/blob/main/README.md)
 
+[![Versão npm](https://badge.fury.io/js/znotion.svg)](https://badge.fury.io/js/znotion)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
+[![Cobertura de Testes](https://img.shields.io/codecov/c/github/seu-usuario/znotion)](https://codecov.io/gh/seu-usuario/znotion)
+[![Status da Build](https://github.com/seu-usuario/znotion/workflows/CI/badge.svg)](https://github.com/seu-usuario/znotion/actions)
+[![Licença: MIT](https://img.shields.io/badge/Licença-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Bem-vindos](https://img.shields.io/badge/PRs-bem--vindos-brightgreen.svg)](http://makeapullrequest.com)
+[![Compatível com Commitizen](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![Versionamento Semântico](https://img.shields.io/badge/semver-2.0.0-brightgreen)](https://semver.org/)
+[![Estilo de Código: Prettier](https://img.shields.io/badge/estilo_código-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+[![Status das Dependências](https://status.david-dm.org/gh/seu-usuario/znotion.svg)](https://david-dm.org/seu-usuario/znotion)
+
 Uma biblioteca TypeScript moderna e tipada para interagir com a API do Notion, oferecendo uma interface simples e robusta para manipular páginas, bancos de dados e blocos.
 
 ## 📚 Documentação
