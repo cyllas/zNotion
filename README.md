@@ -4,14 +4,14 @@
 
 [![npm version](https://badge.fury.io/js/znotion.svg)](https://badge.fury.io/js/znotion)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
-[![Test Coverage](https://img.shields.io/codecov/c/github/seu-usuario/znotion)](https://codecov.io/gh/seu-usuario/znotion)
-[![Build Status](https://github.com/seu-usuario/znotion/workflows/CI/badge.svg)](https://github.com/seu-usuario/znotion/actions)
+[![Test Coverage](https://img.shields.io/codecov/c/github/cyllas/znotion)](https://codecov.io/gh/cyllas/znotion)
+[![Build Status](https://github.com/cyllas/znotion/workflows/CI/badge.svg)](https://github.com/cyllas/znotion/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 [![Semantic Versioning](https://img.shields.io/badge/semver-2.0.0-brightgreen)](https://semver.org/)
 [![Code Style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
-[![Dependencies Status](https://status.david-dm.org/gh/seu-usuario/znotion.svg)](https://david-dm.org/seu-usuario/znotion)
+[![Dependencies Status](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen)](https://github.com/cyllas/znotion/network/dependencies)
 
 A modern and typed TypeScript library for interacting with the Notion API, providing a simple and robust interface for manipulating pages, databases, and blocks.
 
@@ -42,7 +42,7 @@ A modern and typed TypeScript library for interacting with the Notion API, provi
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/znotion.git
+git clone https://github.com/cyllas/znotion.git
 cd znotion
 ```
 
@@ -209,7 +209,7 @@ Adoramos receber contribuições! Para manter a qualidade do código e facilitar
 1. Faça um fork do repositório
 2. Clone seu fork:
    ```bash
-   git clone https://github.com/seu-usuario/znotion.git
+   git clone https://github.com/cyllas/znotion.git
    cd znotion
    ```
 3. Instale as dependências:
@@ -269,8 +269,8 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 Se você encontrar algum problema ou tiver alguma dúvida:
 
 1. Consulte a [documentação](docs/)
-2. Abra uma [issue](https://github.com/seu-usuario/znotion/issues)
-3. Entre em contato através do [email de suporte](mailto:seu-email@exemplo.com)
+2. Abra uma [issue](https://github.com/cyllas/znotion/issues)
+3. Entre em contato através do [email de suporte](mailto:cyllas@exemplo.com)
 
 ## Agradecimentos
 
