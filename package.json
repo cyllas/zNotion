@@ -1,7 +1,7 @@
 {
   "name": "znotion",
   "version": "0.1.0",
-  "description": "Cliente Node.js elegante e modular para integração com a API do Notion",
+  "description": "Cliente Node.js moderno e tipado para a API do Notion, com suporte a webhooks, comentários e paginação automática",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
