@@ -18,6 +18,7 @@ export interface PaginationOptions {
   maxItems?: number;
   /** Cursor inicial */
   startCursor?: string;
+  maxPages?: number;
 }
 
 /**
@@ -27,6 +28,8 @@ export type PaginatedRequest<T> = (
   pageSize: number,
   startCursor?: string
 ) => Promise<PaginatedResponse<T>>;
+
+import { ListBlockChildrenResponse } from '@notionhq/client/build/src/api-endpoints';
 
 /**
  * Classe responsável por gerenciar paginação automática
@@ -113,5 +116,42 @@ export class PaginationHandler {
 
       currentCursor = response.next_cursor;
     }
+  }
+
+  /**
+   * Manipula a paginação de resultados da API do Notion
+   * @param fetchFn Função que faz a chamada à API
+   * @param maxPages Número máximo de páginas a serem buscadas
+   * @param initialParams Parâmetros iniciais para a primeira chamada
+   * @returns Array com todos os resultados combinados
+   */
+  async handlePagination<T>(
+    fetchFn: (params?: Record<string, any>) => Promise<{
+      results: T[];
+      has_more: boolean;
+      next_cursor: string | null;
+    }>,
+    maxPages?: number,
+    initialParams?: Record<string, any>
+  ): Promise<T[]> {
+    const results: T[] = [];
+    let hasMore = true;
+    let nextCursor: string | null = null;
+    let currentPage = 0;
+
+    while (hasMore && (!maxPages || currentPage < maxPages)) {
+      const params = {
+        ...initialParams,
+        ...(nextCursor ? { start_cursor: nextCursor } : {})
+      };
+
+      const response = await fetchFn(params);
+      results.push(...response.results);
+      hasMore = response.has_more;
+      nextCursor = response.next_cursor;
+      currentPage++;
+    }
+
+    return results;
   }
 }

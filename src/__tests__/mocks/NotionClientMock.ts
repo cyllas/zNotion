@@ -1,132 +1,193 @@
 import { Client } from '@notionhq/client';
-import type { 
-  CreatePageParameters,
-  UpdatePageParameters,
-  GetPageParameters,
-  PageObjectResponse,
-  CreateDatabaseParameters,
-  UpdateDatabaseParameters,
-  GetDatabaseParameters,
-  DatabaseObjectResponse,
-  QueryDatabaseParameters,
-  QueryDatabaseResponse,
-  ListBlockChildrenParameters,
-  ListBlockChildrenResponse,
-  GetBlockResponse,
-  UpdateBlockParameters,
-  DeleteBlockResponse,
-  BlockObjectResponse,
-  CreateCommentParameters,
+import { jest } from '@jest/globals';
+import { 
+  CreatePageResponse,
   CreateCommentResponse,
-  ListCommentsParameters,
-  ListCommentsResponse,
-  SearchParameters,
-  ListUsersResponse,
-  SearchResponse
+  QueryDatabaseResponse,
+  AppendBlockChildrenResponse
 } from '@notionhq/client/build/src/api-endpoints';
 
-type FunctionLike = (...args: any[]) => any;
-type MockedFunction<T extends FunctionLike> = jest.MockedFunction<T>;
+export type MockedClient = jest.Mocked<Client>;
 
-/**
- * Interface base para o cliente mockado do Notion
- * Esta interface define todos os métodos e propriedades que podem ser mockados nos testes
- */
-export interface BaseMockedClient {
-  pages?: {
-    create?: MockedFunction<(args: CreatePageParameters) => Promise<PageObjectResponse>>;
-    update?: MockedFunction<(args: UpdatePageParameters) => Promise<PageObjectResponse>>;
-    retrieve?: MockedFunction<(args: GetPageParameters) => Promise<PageObjectResponse>>;
-    properties?: {
-      retrieve?: MockedFunction<(args: { page_id: string }) => Promise<any>>;
-    }
-  };
-  databases?: {
-    create?: MockedFunction<(args: CreateDatabaseParameters) => Promise<DatabaseObjectResponse>>;
-    update?: MockedFunction<(args: UpdateDatabaseParameters) => Promise<DatabaseObjectResponse>>;
-    retrieve?: MockedFunction<(args: GetDatabaseParameters) => Promise<DatabaseObjectResponse>>;
-    query?: MockedFunction<(args: QueryDatabaseParameters) => Promise<QueryDatabaseResponse>>;
-    list?: MockedFunction<() => Promise<any>>;
-  };
-  blocks?: {
-    retrieve?: MockedFunction<(args: { block_id: string }) => Promise<GetBlockResponse>>;
-    update?: MockedFunction<(args: UpdateBlockParameters) => Promise<BlockObjectResponse>>;
-    delete?: MockedFunction<(args: { block_id: string }) => Promise<DeleteBlockResponse>>;
-    children?: {
-      list?: MockedFunction<(args: ListBlockChildrenParameters) => Promise<ListBlockChildrenResponse>>;
-      append?: MockedFunction<(args: { block_id: string; children: Array<any> }) => Promise<{ results: BlockObjectResponse[] }>>;
-    };
-  };
-  search?: MockedFunction<(args: SearchParameters) => Promise<SearchResponse>>;
-  users?: {
-    retrieve?: MockedFunction<(args: { user_id: string }) => Promise<any>>;
-    list?: MockedFunction<() => Promise<ListUsersResponse>>;
-    me?: MockedFunction<() => Promise<any>>;
-  };
-  comments?: {
-    create?: MockedFunction<(args: CreateCommentParameters) => Promise<CreateCommentResponse>>;
-    list?: MockedFunction<(args: ListCommentsParameters) => Promise<ListCommentsResponse>>;
-  };
-}
-
-/**
- * Implementação do cliente mockado do Notion
- * Esta classe implementa todos os métodos mockados necessários para os testes
- */
-export class MockedClient implements Partial<Client> {
-  pages = {
-    create: jest.fn(),
-    update: jest.fn(),
-    retrieve: jest.fn(),
-    properties: {
+export const createMockClient = (): MockedClient => {
+  return {
+    blocks: {
+      retrieve: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      children: {
+        append: jest.fn(),
+        list: jest.fn()
+      }
+    },
+    pages: {
+      create: jest.fn(),
+      update: jest.fn(),
       retrieve: jest.fn()
+    },
+    databases: {
+      create: jest.fn(),
+      update: jest.fn(),
+      retrieve: jest.fn(),
+      query: jest.fn()
+    },
+    comments: {
+      create: jest.fn(),
+      list: jest.fn()
+    },
+    search: jest.fn(),
+    users: {
+      retrieve: jest.fn(),
+      list: jest.fn()
+    },
+    request: jest.fn()
+  } as unknown as MockedClient;
+};
+
+export class NotionClientMock {
+  private static defaultPageResponse: CreatePageResponse = {
+    id: 'test-page-id',
+    object: 'page',
+    created_time: '2023-01-01T00:00:00.000Z',
+    last_edited_time: '2023-01-01T00:00:00.000Z',
+    archived: false,
+    properties: {},
+    parent: {
+      type: 'database_id',
+      database_id: 'test-database-id'
+    },
+    url: 'https://notion.so/test-page',
+    public_url: null
+  };
+
+  private static defaultDatabaseResponse = {
+    object: 'database',
+    id: 'test-database-id',
+    created_time: '2023-01-01T00:00:00.000Z',
+    last_edited_time: '2023-01-01T00:00:00.000Z',
+    title: [],
+    properties: {},
+    parent: {
+      type: 'page_id' as const,
+      page_id: 'test-page-id'
+    },
+    url: 'https://notion.so/test-database',
+    archived: false,
+    is_inline: false
+  };
+
+  private static defaultBlockResponse: any = {
+    id: 'test-block-id',
+    type: 'paragraph',
+    created_time: '2023-01-01T00:00:00.000Z',
+    last_edited_time: '2023-01-01T00:00:00.000Z',
+    has_children: false,
+    archived: false,
+    in_trash: false,
+    parent: {
+      type: 'page_id',
+      page_id: 'test-page-id'
+    },
+    paragraph: {
+      rich_text: [{
+        type: 'text',
+        text: { content: 'Test Block', link: null },
+        annotations: {
+          bold: false,
+          italic: false,
+          strikethrough: false,
+          underline: false,
+          code: false,
+          color: 'default'
+        },
+        plain_text: 'Test Block',
+        href: null
+      }],
+      color: 'default'
+    },
+    object: 'block',
+    created_by: {
+      id: 'user-id',
+      object: 'user'
+    },
+    last_edited_by: {
+      id: 'user-id',
+      object: 'user'
     }
   };
 
-  blocks = {
-    retrieve: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    children: {
-      list: jest.fn(),
-      append: jest.fn()
-    }
-  };
+  static createMock(): MockedClient {
+    const mock = createMockClient();
 
-  databases = {
-    create: jest.fn(),
-    update: jest.fn(),
-    retrieve: jest.fn(),
-    query: jest.fn(),
-    list: jest.fn()
-  };
+    mock.pages.create.mockResolvedValue({ ...this.defaultPageResponse });
+    mock.pages.update.mockResolvedValue({ ...this.defaultPageResponse });
+    mock.pages.retrieve.mockResolvedValue({ ...this.defaultPageResponse });
 
-  search = jest.fn();
+    mock.databases.create.mockResolvedValue({ ...this.defaultDatabaseResponse });
+    mock.databases.update.mockResolvedValue({ ...this.defaultDatabaseResponse });
+    mock.databases.retrieve.mockResolvedValue({ ...this.defaultDatabaseResponse });
+    mock.databases.query.mockResolvedValue({
+      object: 'list',
+      results: [this.defaultPageResponse],
+      has_more: false,
+      next_cursor: null,
+      type: 'page_or_database',
+      page_or_database: {}
+    });
 
-  users = {
-    retrieve: jest.fn(),
-    list: jest.fn(),
-    me: jest.fn()
-  };
+    mock.blocks.children.list.mockResolvedValue({
+      object: 'list',
+      results: [this.defaultBlockResponse],
+      has_more: false,
+      next_cursor: null,
+      type: 'block',
+      block: {}
+    });
+    mock.blocks.children.append.mockResolvedValue({
+      object: 'list',
+      results: [this.defaultBlockResponse],
+      type: 'block',
+      block: {},
+      next_cursor: null,
+      has_more: false
+    });
+    mock.blocks.update.mockResolvedValue({ ...this.defaultBlockResponse });
+    mock.blocks.delete.mockResolvedValue({ ...this.defaultBlockResponse });
+    mock.blocks.retrieve.mockResolvedValue({ ...this.defaultBlockResponse });
 
-  comments = {
-    create: jest.fn(),
-    list: jest.fn()
-  };
+    mock.search.mockResolvedValue({
+      object: 'list',
+      results: [this.defaultPageResponse],
+      has_more: false,
+      next_cursor: null,
+      type: 'page_or_database',
+      page_or_database: {}
+    });
 
-  request = jest.fn().mockImplementation(async <ResponseBody>({ 
-    path,
-    method,
-    query,
-    body,
-    auth
-  }: {
-    path: string;
-    method: string;
-    query?: Record<string, unknown>;
-    body?: Record<string, unknown>;
-    auth?: string;
-  }): Promise<ResponseBody> => {
-    return {} as ResponseBody;
-  });
+    return mock;
+  }
+
+  static createErrorMock(error: Error): MockedClient {
+    const mock = createMockClient();
+
+    // Mock all methods to reject with the error
+    mock.request.mockRejectedValue(error);
+    mock.comments.create.mockRejectedValue(error);
+    mock.comments.list.mockRejectedValue(error);
+    mock.pages.create.mockRejectedValue(error);
+    mock.pages.update.mockRejectedValue(error);
+    mock.pages.retrieve.mockRejectedValue(error);
+    mock.databases.create.mockRejectedValue(error);
+    mock.databases.update.mockRejectedValue(error);
+    mock.databases.retrieve.mockRejectedValue(error);
+    mock.databases.query.mockRejectedValue(error);
+    mock.blocks.children.list.mockRejectedValue(error);
+    mock.blocks.children.append.mockRejectedValue(error);
+    mock.blocks.update.mockRejectedValue(error);
+    mock.blocks.delete.mockRejectedValue(error);
+    mock.blocks.retrieve.mockRejectedValue(error);
+    mock.search.mockRejectedValue(error);
+
+    return mock;
+  }
 }

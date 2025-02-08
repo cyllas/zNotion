@@ -1,18 +1,29 @@
+import { APIErrorCode } from '@notionhq/client';
+
+export interface NotionErrorParams {
+  message: string;
+  code?: APIErrorCode | string;
+  status?: number;
+}
+
+/**
+ * Classe de erro personalizada para a integração com o Notion
+ */
 export class NotionError extends Error {
-  public readonly code?: string;
-  public readonly status?: number;
+  private code: string;
+  private status?: number;
 
-  constructor(message: string, code?: string, status?: number) {
-    super(message);
+  constructor(params: NotionErrorParams) {
+    super(params.message);
     this.name = 'NotionError';
-    this.code = code;
-    this.status = status;
-
-    // Necessário para que instanceof funcione corretamente
-    Object.setPrototypeOf(this, NotionError.prototype);
+    this.code = params.code || 'generic_error';
+    this.status = params.status;
   }
 
-  public toJSON() {
+  /**
+   * Serializa o erro para JSON
+   */
+  toJSON() {
     return {
       error: {
         name: this.name,

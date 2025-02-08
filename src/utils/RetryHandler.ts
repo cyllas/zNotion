@@ -3,33 +3,39 @@
  */
 export interface RetryConfig {
   /** Número máximo de tentativas */
-  maxRetries: number;
+  maxRetries?: number;
   /** Delay inicial entre tentativas (ms) */
-  initialDelayMs: number;
+  initialDelay?: number;
   /** Fator de multiplicação do delay para backoff exponencial */
-  backoffFactor: number;
+  backoffFactor?: number;
   /** Delay máximo entre tentativas (ms) */
-  maxDelayMs: number;
-  /** Lista de códigos HTTP que devem ser retentados */
-  retryableStatusCodes: number[];
+  maxDelay?: number;
 }
 
 /**
  * Configuração padrão para retries
  */
-export const DEFAULT_RETRY_CONFIG: RetryConfig = {
+const DEFAULT_CONFIG: Required<RetryConfig> = {
   maxRetries: 3,
-  initialDelayMs: 1000,
-  backoffFactor: 2,
-  maxDelayMs: 10000,
-  retryableStatusCodes: [408, 429, 500, 502, 503, 504]
+  initialDelay: 1000,
+  maxDelay: 5000,
+  backoffFactor: 2
 };
 
 /**
  * Classe responsável por gerenciar tentativas de retry em caso de falhas
  */
 export class RetryHandler {
-  constructor(private config: RetryConfig = DEFAULT_RETRY_CONFIG) {}
+  private readonly config: Required<RetryConfig>;
+
+  constructor(config?: RetryConfig) {
+    this.config = {
+      maxRetries: config?.maxRetries || DEFAULT_CONFIG.maxRetries,
+      initialDelay: config?.initialDelay || DEFAULT_CONFIG.initialDelay,
+      maxDelay: config?.maxDelay || DEFAULT_CONFIG.maxDelay,
+      backoffFactor: config?.backoffFactor || DEFAULT_CONFIG.backoffFactor
+    };
+  }
 
   /**
    * Executa uma função com retry automático em caso de falha
@@ -37,33 +43,27 @@ export class RetryHandler {
    * @returns Resultado da operação
    */
   async execute<T>(operation: () => Promise<T>): Promise<T> {
-    let lastError: Error;
-    let delay = this.config.initialDelayMs;
+    let lastError: Error | undefined;
 
-    for (let attempt = 1; attempt <= this.config.maxRetries; attempt++) {
+    for (let attempt = 0; attempt < this.config.maxRetries; attempt++) {
       try {
         return await operation();
-      } catch (error: any) {
-        lastError = error;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
 
-        if (!this.shouldRetry(error)) {
-          throw error;
+        if (attempt === this.config.maxRetries - 1) {
+          throw new Error(
+            `Falha após ${this.config.maxRetries} tentativas: ${lastError.message}`
+          );
         }
 
-        if (attempt === this.config.maxRetries) {
-          break;
-        }
-
-        await this.wait(delay);
-        delay = Math.min(
-          delay * this.config.backoffFactor,
-          this.config.maxDelayMs
-        );
+        const delay = this.calculateDelay(attempt);
+        await this.delay(delay);
       }
     }
 
     throw new Error(
-      `Falha após ${this.config.maxRetries} tentativas: ${lastError.message}`
+      `Falha após ${this.config.maxRetries} tentativas: ${lastError?.message ?? 'Erro desconhecido'}`
     );
   }
 
@@ -84,14 +84,19 @@ export class RetryHandler {
     }
 
     // Erros do servidor
-    return this.config.retryableStatusCodes.includes(error.status);
+    return false;
   }
 
   /**
    * Aguarda um determinado tempo
    * @param ms Tempo em milissegundos
    */
-  private wait(ms: number): Promise<void> {
+  private async delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  private calculateDelay(attempt: number): number {
+    const delay = this.config.initialDelay * Math.pow(this.config.backoffFactor, attempt);
+    return Math.min(delay, this.config.maxDelay);
   }
 }

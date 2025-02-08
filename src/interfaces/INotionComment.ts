@@ -1,9 +1,18 @@
+export interface INotionCommentParentPage {
+  type: 'page_id';
+  page_id: string;
+}
+
+export interface INotionCommentParentBlock {
+  type: 'block_id';
+  block_id: string;
+}
+
+export type INotionCommentParent = INotionCommentParentPage | INotionCommentParentBlock;
+
 export interface INotionComment {
   id: string;
-  parent: {
-    type: 'page_id' | 'block_id';
-    id: string;
-  };
+  parent: INotionCommentParent;
   discussion_id: string;
   created_time: string;
   last_edited_time: string;

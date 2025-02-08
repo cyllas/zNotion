@@ -1,103 +1,155 @@
+import { NotionClientMock } from '../mocks/NotionClientMock';
 import { CommentService } from '../../services/CommentService';
 import { NotionError } from '../../utils/NotionError';
-import { mockNotionClient } from '../mocks/notionClient';
+import { 
+  ListCommentsResponse,
+  CreateCommentResponse
+} from '@notionhq/client/build/src/api-endpoints';
 
 describe('CommentService', () => {
+  const mockNotionClient = NotionClientMock.createMock();
   let commentService: CommentService;
-  const mockPageId = 'test-page-id';
-  const mockDiscussionId = 'test-discussion-id';
-  const mockCommentId = 'test-comment-id';
 
   beforeEach(() => {
+    jest.clearAllMocks();
     commentService = new CommentService(mockNotionClient);
   });
 
-  describe('listComments', () => {
-    it('deve listar comentários de uma página', async () => {
-      const mockResponse = {
+  describe('list', () => {
+    it('deve listar comentários corretamente', async () => {
+      const mockResponse: ListCommentsResponse = {
         object: 'list',
         results: [
           {
             object: 'comment',
-            id: mockCommentId,
-            discussion_id: mockDiscussionId,
-            rich_text: [{ text: { content: 'Test comment' } }]
+            id: '1',
+            parent: { type: 'page_id', page_id: 'page-id' },
+            discussion_id: 'discussion-1',
+            created_time: '2023-01-01T00:00:00.000Z',
+            last_edited_time: '2023-01-01T00:00:00.000Z',
+            created_by: { object: 'user', id: 'user-1' },
+            rich_text: []
+          }
+        ],
+        has_more: false,
+        next_cursor: null,
+        type: 'comment',
+        comment: {}
+      };
+
+      mockNotionClient.comments.list.mockResolvedValueOnce(mockResponse);
+
+      const response = await commentService.list({ block_id: 'block-1' });
+
+      expect(response).toEqual(mockResponse);
+      expect(mockNotionClient.comments.list).toHaveBeenCalledWith({
+        block_id: 'block-1'
+      });
+    });
+
+    it('deve propagar erros ao listar comentários', async () => {
+      const mockError = new Error('Failed to list comments');
+      mockNotionClient.comments.list.mockRejectedValueOnce(mockError);
+
+      await expect(commentService.list({ block_id: 'block-1' }))
+        .rejects
+        .toThrow(mockError);
+    });
+  });
+
+  describe('create', () => {
+    it('deve criar um comentário em uma página', async () => {
+      const mockResponse: CreateCommentResponse = {
+        object: 'comment',
+        id: '1',
+        parent: { type: 'page_id', page_id: 'page-1' },
+        discussion_id: 'discussion-1',
+        created_time: '2023-01-01T00:00:00.000Z',
+        last_edited_time: '2023-01-01T00:00:00.000Z',
+        created_by: { object: 'user', id: 'user-1' },
+        rich_text: [
+          {
+            type: 'text',
+            text: { content: 'Test comment', link: null },
+            annotations: {
+              bold: false,
+              italic: false,
+              strikethrough: false,
+              underline: false,
+              code: false,
+              color: 'default'
+            },
+            plain_text: 'Test comment',
+            href: null
           }
         ]
       };
 
-      mockNotionClient.listComments.mockResolvedValue(mockResponse);
+      mockNotionClient.comments.create.mockResolvedValueOnce(mockResponse);
 
-      const response = await commentService.listComments(mockPageId);
+      const response = await commentService.create({
+        parent: { page_id: 'page-1' },
+        rich_text: [{ text: { content: 'Test comment' } }]
+      });
 
-      expect(mockNotionClient.listComments).toHaveBeenCalledWith({ block_id: mockPageId });
       expect(response).toEqual(mockResponse);
+      expect(mockNotionClient.comments.create).toHaveBeenCalledWith({
+        parent: { page_id: 'page-1' },
+        rich_text: [{ text: { content: 'Test comment' } }]
+      });
     });
 
-    it('deve lidar com erros ao listar comentários', async () => {
-      const mockError = new Error('API Error');
-      mockNotionClient.listComments.mockRejectedValue(mockError);
-
-      await expect(commentService.listComments(mockPageId))
-        .rejects
-        .toThrow(NotionError);
-    });
-  });
-
-  describe('createComment', () => {
-    const mockComment = {
-      rich_text: [{ text: { content: 'New comment' } }]
-    };
-
-    it('deve criar um novo comentário em uma página', async () => {
-      const mockResponse = {
+    it('deve criar um comentário em uma discussão existente', async () => {
+      const mockResponse: CreateCommentResponse = {
         object: 'comment',
-        id: mockCommentId,
-        discussion_id: mockDiscussionId,
-        ...mockComment
+        id: '2',
+        parent: { type: 'page_id', page_id: 'page-1' },
+        discussion_id: 'discussion-1',
+        created_time: '2023-01-01T00:00:00.000Z',
+        last_edited_time: '2023-01-01T00:00:00.000Z',
+        created_by: { object: 'user', id: 'user-1' },
+        rich_text: [
+          {
+            type: 'text',
+            text: { content: 'Reply comment', link: null },
+            annotations: {
+              bold: false,
+              italic: false,
+              strikethrough: false,
+              underline: false,
+              code: false,
+              color: 'default'
+            },
+            plain_text: 'Reply comment',
+            href: null
+          }
+        ]
       };
 
-      mockNotionClient.createComment.mockResolvedValue(mockResponse);
+      mockNotionClient.comments.create.mockResolvedValueOnce(mockResponse);
 
-      const response = await commentService.createComment(mockPageId, mockComment);
-
-      expect(mockNotionClient.createComment).toHaveBeenCalledWith({
-        parent: { page_id: mockPageId },
-        ...mockComment
+      const response = await commentService.create({
+        discussion_id: 'discussion-1',
+        rich_text: [{ text: { content: 'Reply comment' } }]
       });
+
       expect(response).toEqual(mockResponse);
+      expect(mockNotionClient.comments.create).toHaveBeenCalledWith({
+        discussion_id: 'discussion-1',
+        rich_text: [{ text: { content: 'Reply comment' } }]
+      });
     });
 
-    it('deve criar uma resposta em uma discussão existente', async () => {
-      const mockResponse = {
-        object: 'comment',
-        id: mockCommentId,
-        discussion_id: mockDiscussionId,
-        ...mockComment
-      };
+    it('deve propagar erros ao criar comentário', async () => {
+      const mockError = new NotionError('Failed to create comment');
+      mockNotionClient.comments.create.mockRejectedValueOnce(mockError);
 
-      mockNotionClient.createComment.mockResolvedValue(mockResponse);
-
-      const response = await commentService.createComment(
-        mockPageId,
-        mockComment,
-        mockDiscussionId
-      );
-
-      expect(mockNotionClient.createComment).toHaveBeenCalledWith({
-        discussion_id: mockDiscussionId,
-        ...mockComment
-      });
-      expect(response).toEqual(mockResponse);
-    });
-
-    it('deve lidar com erros ao criar comentário', async () => {
-      const mockError = new Error('API Error');
-      mockNotionClient.createComment.mockRejectedValue(mockError);
-
-      await expect(commentService.createComment(mockPageId, mockComment))
+      await expect(commentService.create({
+        parent: { page_id: 'page-1' },
+        rich_text: [{ text: { content: 'Test comment' } }]
+      }))
         .rejects
-        .toThrow(NotionError);
+        .toThrow(mockError);
     });
   });
 });
